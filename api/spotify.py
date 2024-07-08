@@ -117,30 +117,22 @@ def makeSVG(data, background_color, border_color):
     contentBar = "".join(["<div class='bar'></div>" for _ in range(barCount)])
     barCSS = barGen(barCount)
 
-    if not "is_playing" in data:
-        #contentBar = "" #Shows/Hides the EQ bar if no song is currently playing
-        currentStatus = "Recently played:"
-        recentPlays = get(RECENTLY_PLAYING_URL)
-        recentPlaysLength = len(recentPlays["items"])
-        itemIndex = random.randint(0, recentPlaysLength - 1)
-        item = recentPlays["items"][itemIndex]["track"]
-    else:
-        item = data["item"]
-        currentStatus = "Vibing to:"
+    album = data["album"]
+    currentStatus = "Vibing to:"
 
-    if item["album"]["images"] == []:
+    if album["images"] == []:
         image = PLACEHOLDER_IMAGE
         barPalette = gradientGen(PLACEHOLDER_URL, 4)
         songPalette = gradientGen(PLACEHOLDER_URL, 2)
     else:
-        image = loadImageB64(item["album"]["images"][1]["url"])
-        barPalette = gradientGen(item["album"]["images"][1]["url"], 4)
-        songPalette = gradientGen(item["album"]["images"][1]["url"], 2)
+        image = loadImageB64(album["images"][1]["url"])
+        barPalette = gradientGen(album["images"][1]["url"], 4)
+        songPalette = gradientGen(album["images"][1]["url"], 2)
 
-    artistName = item["artists"][0]["name"].replace("&", "&amp;")
-    songName = item["name"].replace("&", "&amp;")
-    songURI = item["external_urls"]["spotify"]
-    artistURI = item["artists"][0]["external_urls"]["spotify"]
+    artistName = artists[0]["name"].replace("&", "&amp;")
+    songName = album["name"].replace("&", "&amp;")
+    songURI = album["external_urls"]["spotify"]
+    artistURI = album["artists"][0]["external_urls"]["spotify"]
 
     dataDict = {
         "contentBar": contentBar,
