@@ -118,6 +118,7 @@ def makeSVG(data, background_color, border_color):
     barCSS = barGen(barCount)
 
     album = data["album"]
+    artists = data["artists"]
     currentStatus = "Vibing to:"
 
     if album["images"] == []:
