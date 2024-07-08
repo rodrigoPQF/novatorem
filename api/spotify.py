@@ -25,9 +25,6 @@ FALLBACK_THEME = "spotify.html.j2"
 
 REFRESH_TOKEN_URL = "https://accounts.spotify.com/api/token"
 NOW_PLAYING_URL = "https://api.spotify.com/v1/tracks/7fFTRgP7x9rsGPIvnfkthJ"
-RECENTLY_PLAYING_URL = (
-    "https://api.spotify.com/v1/tracks/7fFTRgP7x9rsGPIvnfkthJ"
-)
 
 app = Flask(__name__)
 
@@ -170,10 +167,7 @@ def catch_all(path):
     background_color = request.args.get('background_color') or "181414"
     border_color = request.args.get('border_color') or "181414"
 
-    try:
-        data = get(NOW_PLAYING_URL)
-    except Exception:
-        data = get(RECENTLY_PLAYING_URL)
+    data = get(NOW_PLAYING_URL)
 
     svg = makeSVG(data, background_color, border_color)
 
