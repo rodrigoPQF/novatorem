@@ -24,7 +24,8 @@ SPOTIFY_TOKEN = ""
 FALLBACK_THEME = "spotify.html.j2"
 
 REFRESH_TOKEN_URL = "https://accounts.spotify.com/api/token"
-NOW_PLAYING_URL = "https://api.spotify.com/v1/tracks/7MKcM6TfaGKQVFfhstCbOw?si=5c1c4de5f5414b9a"
+SPOTIFY_ALBUM_ID = os.getenv("SPOTIFY_ALBUM_ID", "4aawyAB9vmqN3uQ7FjRGTy")
+ALBUM_INFO_URL = f"https://api.spotify.com/v1/albums/{SPOTIFY_ALBUM_ID}"
 
 app = Flask(__name__)
 
@@ -112,6 +113,27 @@ def loadImageB64(url):
     return b64encode(response.content).decode("ascii")
 
 
+def getRandomAlbumTrack():
+    """Get album info and a random track from the album."""
+    album_info = get(ALBUM_INFO_URL)
+    tracks = album_info.get("tracks", {}).get("items", [])
+
+    if not tracks:
+        raise Exception("No tracks found in album")
+
+    random_track = random.choice(tracks)
+
+    # Construct data structure compatible with makeSVG
+    data = {
+        "album": album_info,
+        "artists": random_track.get("artists", album_info.get("artists", [])),
+        "name": random_track.get("name", ""),
+        "external_urls": random_track.get("external_urls", {})
+    }
+
+    return data
+
+
 def makeSVG(data, background_color, border_color):
     barCount = 84
     contentBar = "".join(["<div class='bar'></div>" for _ in range(barCount)])
@@ -131,8 +153,10 @@ def makeSVG(data, background_color, border_color):
         songPalette = gradientGen(album["images"][1]["url"], 2)
 
     artistName = artists[0]["name"].replace("&", "&amp;")
-    songName = album["name"].replace("&", "&amp;")
-    songURI = album["external_urls"]["spotify"]
+    # Use track name if available, otherwise fall back to album name
+    songName = data.get("name", album["name"]).replace("&", "&amp;")
+    # Use track URL if available, otherwise fall back to album URL
+    songURI = data.get("external_urls", {}).get("spotify", album["external_urls"]["spotify"])
     artistURI = album["artists"][0]["external_urls"]["spotify"]
 
     dataDict = {
@@ -160,7 +184,7 @@ def catch_all(path):
     background_color = request.args.get('background_color') or "181414"
     border_color = request.args.get('border_color') or "181414"
 
-    data = get(NOW_PLAYING_URL)
+    data = getRandomAlbumTrack()
 
     svg = makeSVG(data, background_color, border_color)
 
