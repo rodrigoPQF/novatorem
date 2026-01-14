@@ -116,10 +116,16 @@ def loadImageB64(url):
 def getRandomAlbumTrack():
     """Get album info and a random track from the album."""
     album_info = get(ALBUM_INFO_URL)
+
+    # Validate album response structure
+    if not isinstance(album_info, dict) or "error" in album_info:
+        raise Exception(f"Failed to fetch album {SPOTIFY_ALBUM_ID}: {album_info}")
+
     tracks = album_info.get("tracks", {}).get("items", [])
 
     if not tracks:
-        raise Exception("No tracks found in album")
+        raise Exception(f"No tracks found in album {SPOTIFY_ALBUM_ID}. "
+                        "Please verify the album ID is correct and the album has tracks.")
 
     random_track = random.choice(tracks)
 
